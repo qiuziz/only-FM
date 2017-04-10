@@ -2,34 +2,35 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-09 00:15:47
+ * @Last Modified time: 2017-04-10 22:39:15
  */
 
 function OnlyFM() {
-	const audio = document.getElementsByTagName('audio')[0];
-	this._init(audio);
+	this.audio = document.getElementsByTagName('audio')[0];
+	this._init();
 }
 
 OnlyFM.prototype = {
-	_init: function(audio) {
-		this._getSong(audio);
+	_init: function() {
+		this._getSong();
 	},
 
-	_getSong: function(audio) {
+	_getSong: function() {
 		const that = this;
 		HttpRequest({
 			url: "http://api.jirengu.com/fm/getSong.php",
 			method: "get",
 			success: function(res) {
 					 that.song = res.song[0];
-					 that._bind(audio);
-					 that._loadSong(audio);
-					 that._getLrc(audio);
+					 that._bind();
+					 that._loadSong();
+					 that._getLrc();
 				}
 		})
 	},
 
-	_bind: function(audio) {
+	_bind: function() {
+		const that = this;
 		// 设置歌曲图片
 		const musicImg = document.getElementsByClassName('content')[0].childNodes[1];
 		musicImg.src = this.song.picture;
@@ -48,27 +49,36 @@ OnlyFM.prototype = {
 		progressBar.style = 'width: 100%';
 		playingWidth.style = 'width: 0';
 
+		setInterval(function() {
+			playingWidth.style = 'width: ' + that._progress() + '%';
+		},500)
+
 		// 声音控制条
 		bar('bar sound-bar', 'control-sound-bar');
 		const soundBar = document.getElementsByClassName('sound-bar')[0],
 		soundWidth = document.getElementsByClassName('sound-bar')[0].childNodes[0];
 		soundBar.style = 'width: 100%';
 		soundWidth.style = 'width: 50%';
+		soundBar.onclick = function(event) {
+			soundWidth.style = 'width: ' + that._sound(event) + '%';
+			that.audio.volume = that._sound(event)/100;
+			console.log(that.audio.volume);
+		}
 
 	
 	},
 
-	_loadSong: function(audio) {
-		audio.src = this.song.url;
+	_loadSong: function() {
+		this.audio.src = this.song.url;
 		// 播放/暂停
 		const that = this;
 		const playPause = document.getElementsByClassName('play')[0];
 		playPause.onclick = function() {
-			that._playPause(audio);
+			that._playPause();
 		}
 	},
 
-	_getLrc: function(audion) {
+	_getLrc: function() {
 		HttpRequest({
 			url: 'http://tingapi.ting.baidu.com/v1/restserver/ting?format=json&calback=&from=webapp_music&method=baidu.ting.song.lry&songid=' + this.song.sid,
 			method: "get",
@@ -79,20 +89,31 @@ OnlyFM.prototype = {
 		})
 	},
 
-	_playPause: function(audio) {
+	_playPause: function() {
 		const playPause = document.getElementsByClassName('play')[0];
-		if (audio.paused) {
-			audio.play();
+		if (this.audio.paused) {
+			this.audio.play();
 			playPause.src = './images/pause.png';
 		} else {
-			audio.pause();
+			this.audio.pause();
 			playPause.src = './images/play.png';
 		}
+	},
+
+	// 歌曲播放时长
+	_progress: function() {
+		return this.audio.currentTime / this.audio.duration * 100;
+	},
+
+	// 调整声音
+	_sound: function(event) {
+		let x = event.clientX - event.currentTarget.getBoundingClientRect().left;
+		return x / event.currentTarget.clientWidth * 100;
 	}
 };
 
 function bar(className, parents) {
-	const progress = `<div class="` + className + `"><span class="btn-bar"></span></div>`
+	const progress = `<div class="` + className + `"><span class="btn-bar `+ parents + `-span"></span></div>`
 	document.getElementsByClassName(parents)[0].innerHTML = progress;
 }
 

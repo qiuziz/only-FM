@@ -112,6 +112,7 @@ header > ul > li > img {
 	height: 4px;
 	border-radius: 5px;
 	background: #fff;
+	cursor: pointer;
 }
 
 .control-bar {
@@ -128,6 +129,33 @@ header > ul > li > img {
 	height: 4px;
 	border-radius: 5px;
 	background: red;
+	position: relative;
+}
+
+.control-bar-span::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top:-5px;
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background:red;
+	border: 5px solid #fff;
+	display: block;
+}
+
+.control-sound-bar-span::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top:-4px;
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: #fff;
+	border: 3px solid #fff;
+	display: block;
 }
 
 .play {
