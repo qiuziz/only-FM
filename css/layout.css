@@ -121,7 +121,7 @@ header > ul > li > img {
 
 .control-sound-bar {
 	width: 10%;
-	margin-left: -7%;
+	margin-left: -3%;
 }
 
 .btn-bar {
@@ -160,5 +160,11 @@ header > ul > li > img {
 
 .play {
 	cursor: pointer;
+}
+
+.time {
+	width: 50px;
+	font-size: 14px;
+	color: #adb1ad;
 }
 

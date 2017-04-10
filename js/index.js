@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-10 22:39:15
+ * @Last Modified time: 2017-04-10 23:32:12
  */
 
 function OnlyFM() {
@@ -45,12 +45,18 @@ OnlyFM.prototype = {
 		// 进度条
 		bar('bar progress-bar', 'control-bar');
 		const progressBar = document.getElementsByClassName('progress-bar')[0],
-		playingWidth = document.getElementsByClassName('progress-bar')[0].childNodes[0];
+		playingWidth = document.getElementsByClassName('progress-bar')[0].childNodes[0],
+		timeText = document.getElementsByClassName('time')[0];
 		progressBar.style = 'width: 100%';
 		playingWidth.style = 'width: 0';
+		progressBar.onclick = function(event) {
+			that._songProgress(event);
+		}
 
 		setInterval(function() {
+			that._progress() >= 100 && that._getSong();
 			playingWidth.style = 'width: ' + that._progress() + '%';
+			timeText.innerHTML = that._songTime();
 		},500)
 
 		// 声音控制条
@@ -61,8 +67,7 @@ OnlyFM.prototype = {
 		soundWidth.style = 'width: 50%';
 		soundBar.onclick = function(event) {
 			soundWidth.style = 'width: ' + that._sound(event) + '%';
-			that.audio.volume = that._sound(event)/100;
-			console.log(that.audio.volume);
+			that.audio.volume = that._sound(event) / 100;
 		}
 
 	
@@ -105,10 +110,21 @@ OnlyFM.prototype = {
 		return this.audio.currentTime / this.audio.duration * 100;
 	},
 
+	// 歌曲时间显示
+	_songTime: function() {
+		return `<span>` + timeFormat(this.audio.currentTime) + `/` + timeFormat(this.audio.duration) + `</span>`
+	},
+
 	// 调整声音
 	_sound: function(event) {
 		let x = event.clientX - event.currentTarget.getBoundingClientRect().left;
 		return x / event.currentTarget.clientWidth * 100;
+	},
+
+	// 调整歌曲进度
+	_songProgress: function(event) {
+		let x = event.clientX - event.currentTarget.getBoundingClientRect().left;
+		this.audio.currentTime = this.audio.duration * x / event.currentTarget.clientWidth;
 	}
 };
 
@@ -143,5 +159,12 @@ function HttpRequest(options) {
 	args.header.length > 0 && http.setRequestHeader(args.header[0], args.header[1]);
 	http.send();
 }
+
+function timeFormat(time) {
+	const m = parseInt(time / 60);
+	const s = Math.floor(time % 60);
+	return (m > 0 ? (m >= 10 ? m : `0` + m) : `00`) + `:` + (s >= 10 ? s : `0` + s)
+	
+} 
 
 new OnlyFM();
