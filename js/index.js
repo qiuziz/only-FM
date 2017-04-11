@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-10 23:32:12
+ * @Last Modified time: 2017-04-11 10:23:54
  */
 
 function OnlyFM() {
@@ -70,6 +70,11 @@ OnlyFM.prototype = {
 			that.audio.volume = that._sound(event) / 100;
 		}
 
+		const next = document.getElementsByClassName('next')[0];
+		next.onclick = function() {
+			that._getSong();
+		}
+
 	
 	},
 
@@ -107,7 +112,7 @@ OnlyFM.prototype = {
 
 	// 歌曲播放时长
 	_progress: function() {
-		return this.audio.currentTime / this.audio.duration * 100;
+		return ((this.audio.currentTime)/(this.audio.duration))*100;
 	},
 
 	// 歌曲时间显示

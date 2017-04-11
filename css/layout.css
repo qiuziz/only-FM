@@ -158,7 +158,7 @@ header > ul > li > img {
 	display: block;
 }
 
-.play {
+.play, .next {
 	cursor: pointer;
 }
 
@@ -167,4 +167,5 @@ header > ul > li > img {
 	font-size: 14px;
 	color: #adb1ad;
 }
+
 
