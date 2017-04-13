@@ -10,7 +10,9 @@ body, p {
 	color: #fff;
 	height: 100vh;
 	align-items: center;
-	justify-content: space-between
+	justify-content: space-between;
+	min-height: 700px;
+	min-width: 900px;
 }
 
 header {
@@ -67,6 +69,7 @@ header > ul > li > img {
 .btn > ul {
 	display: flex;
 	justify-content: space-around;
+	padding: 0;
 }
 
 .btn > ul > li {
