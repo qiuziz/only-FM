@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-13 17:20:37
+ * @Last Modified time: 2017-04-13 22:03:38
  */
 
 function OnlyFM() {
@@ -33,10 +33,12 @@ OnlyFM.prototype = {
 	_bind: function() {
 		var that = this,
 		// 设置歌曲图片
-		musicImg = document.getElementsByClassName('content')[0];
+		musicImg = document.getElementsByClassName('content')[0],
+		btn = document.getElementsByClassName('btn')[0];
 		this.img = document.createElement('img');
 		this.img.src = this.song.picture;
-		musicImg.childNodes[3] ? musicImg.replaceChild(this.img, musicImg.childNodes[3]) : musicImg.appendChild(this.img);
+		musicImg.childNodes[3] !== btn ? musicImg.replaceChild(this.img, musicImg.childNodes[3]) : musicImg.insertBefore(this.img,btn);
+		
 
 		// 设置歌曲名/歌手
 		var musicTitle = document.getElementsByClassName('title')[0],

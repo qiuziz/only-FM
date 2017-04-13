@@ -45,6 +45,7 @@ header > ul > li > img {
 	overflow: hidden;
 	display: flex;
 	height: 100%;
+	flex-flow: column nowrap;
 	/*align-items: center;*/
 }
 
@@ -64,6 +65,7 @@ header > ul > li > img {
 
 .btn {
 	width: 360px;
+	margin-top: 50px;
 }
 
 .btn > ul {
