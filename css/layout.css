@@ -38,12 +38,25 @@ header > ul > li > img {
 	height: 20px;
 }
 
+.content {
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	height: 100%;
+	align-items: center;
+}
+
 .content > img {
 	width: 300px;
 	height: 300px;
 	border-radius: 50%;
 	box-shadow: 0 0 5px 1px #333;
 	border: 30px solid #000;
+	animation: rotation 60s linear infinite forwards;
+	-moz-animation: rotation 60s linear infinite forwards;
+	-webkit-animation: rotation 60s linear infinite forwards;
+	-o-animation: rotation 60s linear infinite forwards;
+	animation-play-state: paused;
 }
 
 .btn {
@@ -59,7 +72,7 @@ header > ul > li > img {
 	list-style-type: none;
 }
 
-.btn > ul > li > img {
+.btn > ul > li img {
 	width: 20px;
 	height: 20px;
 }
@@ -166,6 +179,33 @@ header > ul > li > img {
 	width: 50px;
 	font-size: 14px;
 	color: #adb1ad;
+}
+
+.needle {
+	background: url(../images/needle.png) no-repeat left 0px;
+	width: 130px;
+  height: 210px;
+	left: 60%;
+	top: -3%;
+	z-index: 10;
+	background-size: contain;
+	position: absolute;
+	transform-origin: 14% 0;
+	transform: rotate(14deg);
+	transition: 0.5s;
+}
+
+.needle-rotate {
+	transform: rotate(-3deg);
+}
+
+@-webkit-keyframes rotation{
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+@keyframes rotation{
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
 }
 
 

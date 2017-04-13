@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-11 10:23:54
+ * @Last Modified time: 2017-04-13 17:20:37
  */
 
 function OnlyFM() {
@@ -16,7 +16,7 @@ OnlyFM.prototype = {
 	},
 
 	_getSong: function() {
-		const that = this;
+		var that = this;
 		HttpRequest({
 			url: "http://api.jirengu.com/fm/getSong.php",
 			method: "get",
@@ -25,18 +25,21 @@ OnlyFM.prototype = {
 					 that._bind();
 					 that._loadSong();
 					 that._getLrc();
+					 that._download();
 				}
 		})
 	},
 
 	_bind: function() {
-		const that = this;
+		var that = this,
 		// 设置歌曲图片
-		const musicImg = document.getElementsByClassName('content')[0].childNodes[1];
-		musicImg.src = this.song.picture;
+		musicImg = document.getElementsByClassName('content')[0];
+		this.img = document.createElement('img');
+		this.img.src = this.song.picture;
+		musicImg.childNodes[3] ? musicImg.replaceChild(this.img, musicImg.childNodes[3]) : musicImg.appendChild(this.img);
 
 		// 设置歌曲名/歌手
-		const musicTitle = document.getElementsByClassName('title')[0],
+		var musicTitle = document.getElementsByClassName('title')[0],
 
 		musicArtist = document.getElementsByClassName('artist')[0];
 		musicTitle.innerHTML = this.song.title;
@@ -44,7 +47,7 @@ OnlyFM.prototype = {
 
 		// 进度条
 		bar('bar progress-bar', 'control-bar');
-		const progressBar = document.getElementsByClassName('progress-bar')[0],
+		var progressBar = document.getElementsByClassName('progress-bar')[0],
 		playingWidth = document.getElementsByClassName('progress-bar')[0].childNodes[0],
 		timeText = document.getElementsByClassName('time')[0];
 		progressBar.style = 'width: 100%';
@@ -61,18 +64,37 @@ OnlyFM.prototype = {
 
 		// 声音控制条
 		bar('bar sound-bar', 'control-sound-bar');
-		const soundBar = document.getElementsByClassName('sound-bar')[0],
+		var soundBar = document.getElementsByClassName('sound-bar')[0],
 		soundWidth = document.getElementsByClassName('sound-bar')[0].childNodes[0];
 		soundBar.style = 'width: 100%';
 		soundWidth.style = 'width: 50%';
+		this.soundVolume = 0.5;
+		this.soundWidthStyle = 'width: 50%';
 		soundBar.onclick = function(event) {
 			soundWidth.style = 'width: ' + that._sound(event) + '%';
+			that.soundWidthStyle = 'width: ' + that._sound(event) + '%';
 			that.audio.volume = that._sound(event) / 100;
+			that.soundVolume = that._sound(event) / 100;
+			
 		}
 
-		const next = document.getElementsByClassName('next')[0];
+		var next = document.getElementsByClassName('next')[0];
 		next.onclick = function() {
 			that._getSong();
+		}
+
+		var soundIcon = document.getElementsByClassName('sound-icon')[0];
+		soundIcon.onclick = function() {
+			if (that.audio.volume > 0) {
+				that.audio.volume = 0;
+				soundWidth.style = 'width: 0';
+				soundIcon.src = './images/unsound.png';
+			} else {
+				that.audio.volume = that.soundVolume;
+				soundWidth.style = that.soundWidthStyle;
+				soundIcon.src = './images/sound.png';
+			}
+		
 		}
 
 	
@@ -81,11 +103,12 @@ OnlyFM.prototype = {
 	_loadSong: function() {
 		this.audio.src = this.song.url;
 		// 播放/暂停
-		const that = this;
-		const playPause = document.getElementsByClassName('play')[0];
+		var that = this;
+		var playPause = document.getElementsByClassName('play')[0];
 		playPause.onclick = function() {
 			that._playPause();
 		}
+		that._playPause();
 	},
 
 	_getLrc: function() {
@@ -100,19 +123,24 @@ OnlyFM.prototype = {
 	},
 
 	_playPause: function() {
-		const playPause = document.getElementsByClassName('play')[0];
+		var playPause = document.getElementsByClassName('play')[0],
+		needle = document.getElementsByClassName('needle')[0];
 		if (this.audio.paused) {
 			this.audio.play();
 			playPause.src = './images/pause.png';
+			needle.className = "needle";
+			this.img.style.animationPlayState = 'running';
 		} else {
 			this.audio.pause();
 			playPause.src = './images/play.png';
+			needle.className += " needle-rotate";
+			this.img.style.animationPlayState = 'paused';
 		}
 	},
 
 	// 歌曲播放时长
 	_progress: function() {
-		return ((this.audio.currentTime)/(this.audio.duration))*100;
+		return this.audio.currentTime / this.audio.duration * 100;
 	},
 
 	// 歌曲时间显示
@@ -122,25 +150,32 @@ OnlyFM.prototype = {
 
 	// 调整声音
 	_sound: function(event) {
-		let x = event.clientX - event.currentTarget.getBoundingClientRect().left;
+		var x = event.clientX - event.currentTarget.getBoundingClientRect().left;
 		return x / event.currentTarget.clientWidth * 100;
 	},
 
 	// 调整歌曲进度
 	_songProgress: function(event) {
-		let x = event.clientX - event.currentTarget.getBoundingClientRect().left;
+		var x = event.clientX - event.currentTarget.getBoundingClientRect().left;
 		this.audio.currentTime = this.audio.duration * x / event.currentTarget.clientWidth;
+	},
+
+	// 下载歌曲
+	_download: function() {
+		var aDown = document.getElementsByClassName('download')[0];
+		aDown.href = this.song.url;
+		aDown.download = this.song.title;
 	}
 };
 
 function bar(className, parents) {
-	const progress = `<div class="` + className + `"><span class="btn-bar `+ parents + `-span"></span></div>`
+	var progress = `<div class="` + className + `"><span class="btn-bar `+ parents + `-span"></span></div>`
 	document.getElementsByClassName(parents)[0].innerHTML = progress;
 }
 
 
 function HttpRequest(options) {
-	const args = {
+	var args = {
 		url: '',
 		method: 'GET',
 		header: [],
@@ -150,7 +185,7 @@ function HttpRequest(options) {
 	
 	http = new XMLHttpRequest();
 
-	for (let i in args) {
+	for (var i in args) {
 		options[i] &&	(args[i] = options[i]);
 	}
 
@@ -166,9 +201,14 @@ function HttpRequest(options) {
 }
 
 function timeFormat(time) {
-	const m = parseInt(time / 60);
-	const s = Math.floor(time % 60);
-	return (m > 0 ? (m >= 10 ? m : `0` + m) : `00`) + `:` + (s >= 10 ? s : `0` + s)
+	if (isNaN(Number(time))) {
+		console.log('参数只能为number');
+		return;
+	};
+	var m = parseInt(time / 60) < 10 ? `0` + parseInt(time / 60) : parseInt(time / 60),
+	h = parseInt(m / 60) < 10 ? `0` + parseInt(m / 60) < 10 : parseInt(m / 60) < 10;
+	s = Math.floor(time % 60) < 10 ? `0` + Math.floor(time % 60) : Math.floor(time % 60);
+	return (m > 0 ? m : `00`) + `:` + s
 	
 } 
 
