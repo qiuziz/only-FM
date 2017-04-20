@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-20 11:19:55
+ * @Last Modified time: 2017-04-20 15:01:54
  */
 
 function OnlyFM() {
@@ -98,6 +98,18 @@ OnlyFM.prototype = {
 		
 		}
 
+		var like = document.getElementsByClassName('like')[0];
+		like.onclick = function() {
+			if (like.className.indexOf('active') > -1) {
+				localRemove(that.song.title);
+				like.className = 'like';
+			} else {
+				localSet(that.song);
+			 	like.className = 'like active';
+			}
+			
+		}
+	
 		var loop = document.getElementsByClassName('loop')[0];
 		loop.onclick = function() {
 			that.audio.loop = !that.audio.loop;
@@ -139,6 +151,10 @@ OnlyFM.prototype = {
 			that._playPause();
 		}
 		that._playPause();
+		if(localFetch(this.song.title)){
+			var like = document.getElementsByClassName('like')[0];
+					like.className = 'like active';
+			}
 	},
 
 	_getLrc: function() {
@@ -304,6 +320,18 @@ function timeFormat(time) {
 	s = Math.floor(time % 60) < 10 ? `0` + Math.floor(time % 60) : Math.floor(time % 60);
 	return (h > 0 ? (h + ':') : '') + m + `:` + s
 	
-} 
+}
+
+function localFetch(key) {
+	return JSON.parse(window.localStorage.getItem(key))
+}
+
+function  localSet(song) {
+	window.localStorage.setItem(song.title,JSON.stringify(song));
+}
+
+function localRemove(name) {
+	window.localStorage.removeItem(name);
+}
 
 new OnlyFM();
