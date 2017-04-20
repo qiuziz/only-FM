@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-13 22:03:38
+ * @Last Modified time: 2017-04-20 11:19:55
  */
 
 function OnlyFM() {
@@ -58,12 +58,6 @@ OnlyFM.prototype = {
 			that._songProgress(event);
 		}
 
-		setInterval(function() {
-			that._progress() >= 100 && that._getSong();
-			playingWidth.style = 'width: ' + that._progress() + '%';
-			timeText.innerHTML = that._songTime();
-		},500)
-
 		// 声音控制条
 		bar('bar sound-bar', 'control-sound-bar');
 		var soundBar = document.getElementsByClassName('sound-bar')[0],
@@ -85,6 +79,11 @@ OnlyFM.prototype = {
 			that._getSong();
 		}
 
+		var lrcShowHide = document.getElementsByClassName('lrc')[0];
+		lrcShowHide.onclick = function() {
+			that._showHideLrc();
+		}
+
 		var soundIcon = document.getElementsByClassName('sound-icon')[0];
 		soundIcon.onclick = function() {
 			if (that.audio.volume > 0) {
@@ -98,6 +97,35 @@ OnlyFM.prototype = {
 			}
 		
 		}
+
+		var loop = document.getElementsByClassName('loop')[0];
+		loop.onclick = function() {
+			that.audio.loop = !that.audio.loop;
+			loop.src = that.audio.loop ? './images/single-cycle.png' : './images/random.png';
+		}
+
+		this.audio.addEventListener("timeupdate", function () {
+			that._progress() >= 100 && that._getSong();
+			playingWidth.style = 'width: ' + that._progress() + '%';
+			timeText.innerHTML = that._songTime();
+
+			var lrcUl = document.getElementsByClassName('lrc-ul')[0],
+			liList = (lrcUl && document.getElementsByClassName('lrc-ul')[0].getElementsByTagName('li')) || [],
+			lrcText = document.getElementsByClassName('lrcText')[0];
+			if (lrcText && lrcText.style.display === 'block') {
+				for(var i = 0; i < liList.length; i++){
+					var curTime = liList[i].getAttribute('data-time'),
+					nextTime = i < liList.length - 1 && liList[i + 1].getAttribute('data-time');
+					if (Math.ceil(that.audio.currentTime) == curTime && Math.ceil(that.audio.currentTime) < nextTime) {
+						var top = parseInt(lrcUl.style.marginTop || 0) - 15;
+						lrcUl.style.marginTop = top + 'px';
+						liList[i].className = 'now-lrc';
+						liList[i - 1].className = '';
+					} else {
+					}
+				}
+			}
+		})
 
 	
 	},
@@ -114,14 +142,78 @@ OnlyFM.prototype = {
 	},
 
 	_getLrc: function() {
+		var that = this;
 		HttpRequest({
-			url: 'http://tingapi.ting.baidu.com/v1/restserver/ting?format=json&calback=&from=webapp_music&method=baidu.ting.song.lry&songid=' + this.song.sid,
+			url: 'http://api.jirengu.com/fm/getLyric.php?sid=' + this.song.sid,
 			method: "get",
-			header: ['Content-Type', 'application/json'],
+			header: ['Accept', 'application/json, text/javascript'],
 			success: function(res) {
-					 console.log(res)
+					that.lrc = res.lyric;
 				}
 		})
+	},
+
+	_parseLrc: function(lrc) {
+		if (!lrc) return;
+		var lrcArray = lrc.split('\n'),
+		reg = /^\[\d{2}\:\d{2}\.\d{2}\]/,
+		lrcRender = [];
+
+		lrcArray.forEach(function(item) {
+			 if (!reg.test(item)) {              //剔除收到数据中没有时间的部分
+				lrcArray.splice(item, 1);
+				return;
+      }
+			var time = item.match(reg),      //把歌词分为：时间和歌词两个部分
+			lyric = item.split(time),
+			seconds = time && (time[0][1] * 600 + time[0][2] * 60 + time[0][4] * 10 + time[0][5] * 1);  //将时间换算为秒
+			lrcRender.push([seconds, lyric[1]]);      //将整个歌词保存至二维数组中，形式为[时间，歌词]；
+		});
+		console.log(lrcRender);
+		return lrcRender;
+		
+	},
+
+	_renderLrc: function(lrc) {
+		if (!lrc) return;
+		var that = this,
+		li = '';
+		lrc.forEach(function(item, index) {
+			if (!(index === 0 || (item[0] > lrc[index - 1][0]))) {
+				lrc.splice(index,1);
+			}
+		})
+		lrc.forEach(function(item, index) {
+			if (item[1]) {
+				li += '<li data-time="' +item[0] + '">' + item[1] + '</li>';
+			}
+		});
+		this.lrcUl.innerHTML = li;
+	},
+
+	_showHideLrc: function() {
+		var lrcText = document.getElementsByClassName('lrcText')[0],
+		content = document.getElementsByClassName('content')[0],
+		needle = document.getElementsByClassName('needle')[0];
+
+		if (!lrcText) {
+			lrcText = document.createElement('div');
+			lrcText.className = 'lrcText';
+			this.lrcUl = document.createElement('ul');
+			this.lrcUl.className = 'lrc-ul';
+		}
+		lrcText.appendChild(this.lrcUl);
+		if (lrcText.style.display === 'block') {
+			lrcText.style.display = 'none';
+			content.replaceChild(this.img, content.childNodes[3]);
+			this._renderLrc(this._parseLrc(this.lrc));
+			needle.style.display = 'block';
+		} else {
+			lrcText.style.display = 'block';
+			content.replaceChild(lrcText, content.childNodes[3]);
+			this._renderLrc(this._parseLrc(this.lrc));
+			needle.style.display = 'none';
+		}
 	},
 
 	_playPause: function() {
@@ -205,12 +297,12 @@ function HttpRequest(options) {
 function timeFormat(time) {
 	if (isNaN(Number(time))) {
 		console.log('参数只能为number');
-		return;
+		return '00:00';
 	};
 	var m = parseInt(time / 60) < 10 ? `0` + parseInt(time / 60) : parseInt(time / 60),
-	h = parseInt(m / 60) < 10 ? `0` + parseInt(m / 60) < 10 : parseInt(m / 60) < 10;
+	h = parseInt(m / 60) < 10 ? `0` + parseInt(m / 60) : parseInt(m / 60);
 	s = Math.floor(time % 60) < 10 ? `0` + Math.floor(time % 60) : Math.floor(time % 60);
-	return (m > 0 ? m : `00`) + `:` + s
+	return (h > 0 ? (h + ':') : '') + m + `:` + s
 	
 } 
 

@@ -76,6 +76,7 @@ header > ul > li > img {
 
 .btn > ul > li {
 	list-style-type: none;
+	cursor: pointer;
 }
 
 .btn > ul > li img {
@@ -214,4 +215,32 @@ header > ul > li > img {
 	to {-webkit-transform: rotate(360deg);}
 }
 
+.lrcText {
+	display: none;
+	width: 300px;
+	height: 300px;
+	margin-top: 110px;
+	text-align: center;
+	overflow: auto;
+	position: relative;
+}
 
+.lrcText>ul {
+	position: absolute;
+	top: 150px;
+	transition: 0.5s;
+	width: 100%;
+}
+.lrcText>ul li {
+	width: 100%;
+	font-size: 12px;
+	padding: 10px;
+	color: #ccc;
+	list-style-type: none;
+	height: 15px;
+}
+
+.now-lrc {
+	color: #fff !important;
+  font-size: 16px !important;
+}
