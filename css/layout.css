@@ -292,7 +292,13 @@
 		line-height: 20px;
 	}
 	header > ul > li > section {
-		font-size: 0.5em;
+		font-size: 1em;
+	}
+	header > ul > li > section > p {
+		width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+		white-space: nowrap
 	}
 
 	header > ul > li > img {
@@ -464,12 +470,12 @@
 		background-size: contain;
 		position: absolute;
 		transform-origin: 14% 0;
-		transform: rotate(20deg);
+		transform: rotate(17deg);
 		transition: 0.5s;
 	}
 
 	.needle-rotate {
-		transform: rotate(-3deg);
+		transform: rotate(6deg);
 	}
 
 	@-webkit-keyframes rotation{
