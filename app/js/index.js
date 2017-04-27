@@ -2,42 +2,66 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-20 15:01:54
+ * @Last Modified time: 2017-04-27 15:19:51
  */
 
 function OnlyFM() {
 	this.audio = document.getElementsByTagName('audio')[0];
+	this.index = random(0, 19);
 	this._init();
 }
 
 OnlyFM.prototype = {
 	_init: function() {
-		this._getSong();
+		this._getAllSongs();
 	},
 
-	_getSong: function() {
+	_loginNetease: function() {
 		var that = this;
 		HttpRequest({
-			url: "http://api.jirengu.com/fm/getSong.php",
+			url: "/login",
 			method: "get",
 			success: function(res) {
-					 that.song = res.song[0];
-					 that._bind();
-					 that._loadSong();
-					 that._getLrc();
-					 that._download();
-				}
+				that._getAllSongs();
+			}
 		})
 	},
 
+	_getAllSongs: function() {
+		var that = this;
+		HttpRequest({
+			url: "/recommend/songs",
+			method: "get",
+			success: function(res) {
+				if (res.code !== 200) {
+					that._loginNetease();
+				} else {
+					that.songsList = res.recommend;
+					that._getSong();
+				}
+			}
+		})
+	},
+	
+	_getSong: function() {
+		this.song = {
+			id: this.songsList[this.index].id,
+			url: this.songsList[this.index].mp3Url,
+			picUrl: this.songsList[this.index].album.picUrl,
+			title: this.songsList[this.index].name,
+			artist: this.songsList[this.index].artists[0].name
+		};
+		this.index = random(0, 19);
+		this._bind();
+		this._loadSong();
+		this._download();
+	},
+
 	_bind: function() {
-		var that = this,
+		var that = this;
 		// 设置歌曲图片
-		musicImg = document.getElementsByClassName('content')[0],
-		btn = document.getElementsByClassName('btn')[0];
-		this.img = document.createElement('img');
-		this.img.src = this.song.picture;
-		musicImg.childNodes[3] !== btn ? musicImg.replaceChild(this.img, musicImg.childNodes[3]) : musicImg.insertBefore(this.img,btn);
+		this.musicImg = document.getElementsByClassName('pic-img')[0];
+		this.musicImg.src = this.song.picUrl;
 		
 
 		// 设置歌曲名/歌手
@@ -76,12 +100,13 @@ OnlyFM.prototype = {
 
 		var next = document.getElementsByClassName('next')[0];
 		next.onclick = function() {
+			that.lrc = '';
 			that._getSong();
 		}
 
 		var lrcShowHide = document.getElementsByClassName('lrc')[0];
 		lrcShowHide.onclick = function() {
-			that._showHideLrc();
+			that._getLrc();
 		}
 
 		var soundIcon = document.getElementsByClassName('sound-icon')[0];
@@ -159,20 +184,23 @@ OnlyFM.prototype = {
 
 	_getLrc: function() {
 		var that = this;
+		!that.lrc ?
 		HttpRequest({
-			url: 'http://api.jirengu.com/fm/getLyric.php?sid=' + this.song.sid,
+			url: '/lyric?id=' + this.song.id,
 			method: "get",
 			header: ['Accept', 'application/json, text/javascript'],
 			success: function(res) {
-					that.lrc = res.lyric;
+					that.lrc = res.nolyric ? '[00:00.01]暂无歌词\n' : res.lrc.lyric;
+					that._showHideLrc();
 				}
 		})
+		: this._showHideLrc();
 	},
 
 	_parseLrc: function(lrc) {
 		if (!lrc) return;
 		var lrcArray = lrc.split('\n'),
-		reg = /^\[\d{2}\:\d{2}\.\d{2}\]/,
+		reg = /^\[\d{2}\:\d{2}\.\d{2,3}\]/,
 		lrcRender = [];
 
 		lrcArray.forEach(function(item) {
@@ -208,43 +236,39 @@ OnlyFM.prototype = {
 	},
 
 	_showHideLrc: function() {
+		
 		var lrcText = document.getElementsByClassName('lrcText')[0],
-		content = document.getElementsByClassName('content')[0],
 		needle = document.getElementsByClassName('needle')[0];
+		this.lrcUl = document.getElementsByClassName('lrc-ul')[0];
 
-		if (!lrcText) {
-			lrcText = document.createElement('div');
-			lrcText.className = 'lrcText';
-			this.lrcUl = document.createElement('ul');
-			this.lrcUl.className = 'lrc-ul';
-		}
-		lrcText.appendChild(this.lrcUl);
+		
 		if (lrcText.style.display === 'block') {
 			lrcText.style.display = 'none';
-			content.replaceChild(this.img, content.childNodes[3]);
+			this.musicImg.style.display = 'block';
 			this._renderLrc(this._parseLrc(this.lrc));
 			needle.style.display = 'block';
 		} else {
 			lrcText.style.display = 'block';
-			content.replaceChild(lrcText, content.childNodes[3]);
-			this._renderLrc(this._parseLrc(this.lrc));
+			this.musicImg.style.display = 'none';
 			needle.style.display = 'none';
+			this._renderLrc(this._parseLrc(this.lrc));
 		}
 	},
 
 	_playPause: function() {
 		var playPause = document.getElementsByClassName('play')[0],
 		needle = document.getElementsByClassName('needle')[0];
+		needle.style.display = 'block';
 		if (this.audio.paused) {
 			this.audio.play();
 			playPause.src = './images/pause.png';
 			needle.className = "needle";
-			this.img.style.animationPlayState = 'running';
+			this.musicImg.style.animationPlayState = 'running';
 		} else {
 			this.audio.pause();
 			playPause.src = './images/play.png';
 			needle.className += " needle-rotate";
-			this.img.style.animationPlayState = 'paused';
+			this.musicImg.style.animationPlayState = 'paused';
 		}
 	},
 
@@ -332,6 +356,12 @@ function  localSet(song) {
 
 function localRemove(name) {
 	window.localStorage.removeItem(name);
+}
+
+// 产生m 到 n 之间的随机数
+function random(m, n) {
+	var i = n - m + 1;
+	return Math.floor(Math.random() * i + m);
 }
 
 new OnlyFM();

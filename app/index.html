@@ -28,6 +28,10 @@
 			</header>
 			<section class="content">
 				<div class="needle needle-rotate"></div>
+				<img class="pic-img" src="./images/default.png">
+				<div class="lrcText" style="display: none;">
+					<ul class="lrc-ul"></ul>
+				</div>
 				<div class="btn">
 				<ul>
 					<li>
@@ -55,10 +59,18 @@
 						<img class="play" src="./images/pause.png" alt="播放">
 						<img class="next" src="./images/next.png" alt="下一首">
 					</li>
-					<li class="control-bar"></li>
-					<li class="time"></li>
-					<li class="sound-icon-li"><img class="sound-icon" src="./images/sound.png" alt="声音"></li>
-					<li class="control-sound-bar"></li>
+					<li class="control-bar">
+						<div class="bar progress-bar" style="width: 100%;"><span class="btn-bar control-bar-span" style="width: 0;"></span></div>
+					</li>
+					<li class="time">
+						<span>00:00/00:00</span>
+					</li>
+					<li class="sound-icon-li">
+						<img class="sound-icon" src="./images/sound.png" alt="声音">
+					</li>
+					<li class="control-sound-bar">
+						<div class="bar sound-bar" style="width: 100%;"><span class="btn-bar control-sound-bar-span" style="width: 50%;"></span></div>
+					</li>
 				</ul>
 			</footer>
 		</div>
