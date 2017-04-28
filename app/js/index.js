@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-28 21:39:09
+ * @Last Modified time: 2017-04-28 21:46:13
  */
 
 function OnlyFM() {
@@ -60,8 +60,6 @@ OnlyFM.prototype = {
 		var that = this;
 		this.ids = ids || this.ids;
 		this.index = random(0, this.songTotal);
-		console.log('ids' + this.ids[this.index])
-		console.log('index' + this.index)
 		HttpRequest({
 			url: "/music/songDetail?ids=" + this.ids[this.index],
 			method: "get",
