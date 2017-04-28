@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-26 14:58:01
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-27 11:38:34
+ * @Last Modified time: 2017-04-28 16:40:16
  */
 
 const encrypt = require('./crypto.js');

@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-28 15:04:45
+ * @Last Modified time: 2017-04-28 21:39:09
  */
 
 function OnlyFM() {
@@ -46,10 +46,11 @@ OnlyFM.prototype = {
 			url: "/playlist/detail?id=" + id,
 			method: "get",
 			success: function(res) {
-				var ids = '', len = res.privileges.length;
-				res.privileges.forEach(function(item, index) {
-					index < len - 1 ? ids += item.id + ',' : ids += item.id;
-				})
+				var ids = [], len = res.privileges.length;
+				res.privileges.forEach(function(item) {
+					ids.push(item.id);
+				});
+				that.songTotal = ids.length;
 				that._songDetail(ids);
 			}
 		})
@@ -57,12 +58,15 @@ OnlyFM.prototype = {
 
 	_songDetail: function(ids) {
 		var that = this;
+		this.ids = ids || this.ids;
+		this.index = random(0, this.songTotal);
+		console.log('ids' + this.ids[this.index])
+		console.log('index' + this.index)
 		HttpRequest({
-			url: "/music/songDetail?ids=" + ids,
+			url: "/music/songDetail?ids=" + this.ids[this.index],
 			method: "get",
 			success: function(res) {
-				that.songTotal = (res.songs && res.songs.length) || 0;
-				that._getSong(res.songs);
+				that._getSong(res.songs[0]);
 			}
 		})
 	},
@@ -75,9 +79,10 @@ OnlyFM.prototype = {
 			success: function(res) {
 				if (res.code !== 200) {
 					that._loginNetease();
-				} else if (res.recommend && res.recommend.length > 0){
+				} else if (res.recommend && res.recommend.length < 0){
 					that.songTotal = res.recommend.length || 0;
-					that._getSong(res.recommend);
+					that.recommendSongs = res.recommend;
+					that._getSong(res.recommend[that.index]);
 				} else {
 					that._userPlaylist(localFetch('__music_uid'));
 				}
@@ -85,19 +90,25 @@ OnlyFM.prototype = {
 		})
 	},
 
-	_getSong: function(songList) {
-		this.songList = songList || this.songList;
-		this.song = {
-			id: this.songList[this.index].id,
-			url: this.songList[this.index].mp3Url,
-			picUrl: this.songList[this.index].album.picUrl,
-			title: this.songList[this.index].name,
-			artist: this.songList[this.index].artists[0].name
-		};
-		this.index = random(0, this.songTotal);
-		this._bind();
-		this._loadSong();
-		this._download();
+	_getSong: function(song) {
+		var that = this;
+			HttpRequest({
+			url: "/music/url?id=" + song.id,
+			method: "get",
+			success: function(res) {
+				that.song = {
+					id: song.id,
+					url: res.data[0].url,
+					picUrl: song.album.picUrl,
+					title: song.name,
+					artist: song.artists[0].name
+				};
+				that._bind();
+				that._loadSong();
+				that._download();
+			}
+		})
+		
 	},
 
 	_bind: function() {
@@ -144,7 +155,9 @@ OnlyFM.prototype = {
 		var next = document.getElementsByClassName('next')[0];
 		next.onclick = function() {
 			that.lrc = '';
-			that._getSong();
+			that.recommendSongs
+			? that._getSong(that.recommendSongs[random(0, that.songTotal)])
+			: that._songDetail();
 		}
 
 		var lrcShowHide = document.getElementsByClassName('lrc')[0];
@@ -184,8 +197,16 @@ OnlyFM.prototype = {
 			loop.src = that.audio.loop ? './images/single-cycle.png' : './images/random.png';
 		}
 
+		this.audio.onended = function() {
+			that._endedOrError();
+		}
+		this.audio.onerror = function() {
+			that._endedOrError();
+		}
+
 		this.audio.addEventListener("timeupdate", function () {
-			that._progress() >= 100 && that._getSong();
+			
+				
 			playingWidth.style = 'width: ' + that._progress() + '%';
 			timeText.innerHTML = that._songTime();
 
@@ -223,6 +244,16 @@ OnlyFM.prototype = {
 			var like = document.getElementsByClassName('like')[0];
 					like.className = 'like active';
 			}
+	},
+
+	_endedOrError: function() {
+		if (this.recommendSongs) {
+			console.log('111')
+			this._getSong(this.recommendSongs[random(0, this.songTotal)]);
+		} else {
+			console.log('2222')
+			this._songDetail()
+		}
 	},
 
 	_getLrc: function() {
