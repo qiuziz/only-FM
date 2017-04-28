@@ -2,19 +2,18 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-28 11:20:35
+ * @Last Modified time: 2017-04-28 15:04:45
  */
 
 function OnlyFM() {
 	this.audio = document.getElementsByTagName('audio')[0];
-	this.index = random(0, 19);
+	this.index = 0;
 	this._init();
 }
 
 OnlyFM.prototype = {
 	_init: function() {
 		this._getAllSongs();
-		this._userPlaylist(5554901);
 	},
 
 	_loginNetease: function() {
@@ -23,9 +22,8 @@ OnlyFM.prototype = {
 			url: "/login",
 			method: "get",
 			success: function(res) {
-				that.uid = res.account.id;
+				localSet('__music_uid', res.account.id);
 				that._getAllSongs();
-				that._userPlaylist(res.account.id);
 			}
 		})
 	},
@@ -48,23 +46,28 @@ OnlyFM.prototype = {
 			url: "/playlist/detail?id=" + id,
 			method: "get",
 			success: function(res) {
-				that._songDetail(res.privileges[0].id);
+				var ids = '', len = res.privileges.length;
+				res.privileges.forEach(function(item, index) {
+					index < len - 1 ? ids += item.id + ',' : ids += item.id;
+				})
+				that._songDetail(ids);
 			}
 		})
 	},
 
-	_songDetail: function(id) {
+	_songDetail: function(ids) {
 		var that = this;
 		HttpRequest({
-			url: "/music/songDetail?ids=" + id,
+			url: "/music/songDetail?ids=" + ids,
 			method: "get",
 			success: function(res) {
-				// that.likeList = res.
+				that.songTotal = (res.songs && res.songs.length) || 0;
+				that._getSong(res.songs);
 			}
 		})
 	},
 
-	_getAllSongs: function() {
+	_getAllSongs: function(ids) {
 		var that = this;
 		HttpRequest({
 			url: "/recommend/songs",
@@ -72,24 +75,26 @@ OnlyFM.prototype = {
 			success: function(res) {
 				if (res.code !== 200) {
 					that._loginNetease();
+				} else if (res.recommend && res.recommend.length > 0){
+					that.songTotal = res.recommend.length || 0;
+					that._getSong(res.recommend);
 				} else {
-					that.songsList = res.recommend;
-					that._getSong();
+					that._userPlaylist(localFetch('__music_uid'));
 				}
 			}
 		})
-	
 	},
-	
-	_getSong: function() {
+
+	_getSong: function(songList) {
+		this.songList = songList || this.songList;
 		this.song = {
-			id: this.songsList[this.index].id,
-			url: this.songsList[this.index].mp3Url,
-			picUrl: this.songsList[this.index].album.picUrl,
-			title: this.songsList[this.index].name,
-			artist: this.songsList[this.index].artists[0].name
+			id: this.songList[this.index].id,
+			url: this.songList[this.index].mp3Url,
+			picUrl: this.songList[this.index].album.picUrl,
+			title: this.songList[this.index].name,
+			artist: this.songList[this.index].artists[0].name
 		};
-		this.index = random(0, 19);
+		this.index = random(0, this.songTotal);
 		this._bind();
 		this._loadSong();
 		this._download();
@@ -114,8 +119,8 @@ OnlyFM.prototype = {
 		var progressBar = document.getElementsByClassName('progress-bar')[0],
 		playingWidth = document.getElementsByClassName('progress-bar')[0].childNodes[0],
 		timeText = document.getElementsByClassName('time')[0];
-		progressBar.style = 'width: 100%';
 		playingWidth.style = 'width: 0';
+		progressBar.style = 'width: 100%';
 		progressBar.onclick = function(event) {
 			that._songProgress(event);
 		}
@@ -167,7 +172,7 @@ OnlyFM.prototype = {
 				localRemove(that.song.title);
 				like.className = 'like';
 			} else {
-				localSet(that.song);
+				localSet(that.song.title, JSON.stringify(that.song));
 			 	like.className = 'like active';
 			}
 			
@@ -312,7 +317,7 @@ OnlyFM.prototype = {
 
 	// 歌曲播放时长
 	_progress: function() {
-		return this.audio.currentTime / this.audio.duration * 100;
+		return this.audio.currentTime / this.audio.duration * 100 || 0;
 	},
 
 	// 歌曲时间显示
@@ -385,15 +390,15 @@ function timeFormat(time) {
 }
 
 function localFetch(key) {
-	return JSON.parse(window.localStorage.getItem(key))
+	return window.localStorage.getItem(key);
 }
 
-function  localSet(song) {
-	window.localStorage.setItem(song.title,JSON.stringify(song));
+function  localSet(key, value) {
+	window.localStorage.setItem(key, value);
 }
 
-function localRemove(name) {
-	window.localStorage.removeItem(name);
+function localRemove(key) {
+	window.localStorage.removeItem(key);
 }
 
 // 产生m 到 n 之间的随机数
