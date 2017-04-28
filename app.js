@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-25 11:42:50
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-26 18:30:12
+ * @Last Modified time: 2017-04-28 11:17:04
  */
 
 var http = require('http');
@@ -18,6 +18,16 @@ app.use('/recommend/songs', require('./router/recommendSongs'));
 
 // 获取歌词
 app.use('/lyric', require('./router/lyric'));
+
+// 获取用户歌单
+app.use('/user/playlist', require('./router/userPlaylist'));
+
+
+// 获取歌单内列表
+app.use('/playlist/detail', require('./router/playlistDetail'));
+
+// 获取音乐详情
+app.use('/music/songDetail', require('./router/songDetail'))
 
 
 const port = process.env.PORT || 8888;

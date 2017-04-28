@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-27 15:19:51
+ * @Last Modified time: 2017-04-28 11:20:35
  */
 
 function OnlyFM() {
@@ -14,6 +14,7 @@ function OnlyFM() {
 OnlyFM.prototype = {
 	_init: function() {
 		this._getAllSongs();
+		this._userPlaylist(5554901);
 	},
 
 	_loginNetease: function() {
@@ -22,7 +23,43 @@ OnlyFM.prototype = {
 			url: "/login",
 			method: "get",
 			success: function(res) {
+				that.uid = res.account.id;
 				that._getAllSongs();
+				that._userPlaylist(res.account.id);
+			}
+		})
+	},
+
+	_userPlaylist: function(uid) {
+		var that = this;
+		HttpRequest({
+			url: "/user/playlist?uid=" + uid,
+			method: "get",
+			success: function(res) {
+				that.myLikePlaylistId = res.playlist[0].id;
+				that._playlistDetail(res.playlist[0].id);
+			}
+		})
+	},
+
+	_playlistDetail: function(id) {
+		var that = this;
+		HttpRequest({
+			url: "/playlist/detail?id=" + id,
+			method: "get",
+			success: function(res) {
+				that._songDetail(res.privileges[0].id);
+			}
+		})
+	},
+
+	_songDetail: function(id) {
+		var that = this;
+		HttpRequest({
+			url: "/music/songDetail?ids=" + id,
+			method: "get",
+			success: function(res) {
+				// that.likeList = res.
 			}
 		})
 	},
@@ -41,6 +78,7 @@ OnlyFM.prototype = {
 				}
 			}
 		})
+	
 	},
 	
 	_getSong: function() {
