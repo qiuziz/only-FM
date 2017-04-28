@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-28 21:46:13
+ * @Last Modified time: 2017-04-28 21:49:50
  */
 
 function OnlyFM() {
@@ -230,7 +230,7 @@ OnlyFM.prototype = {
 	},
 
 	_loadSong: function() {
-		this.audio.src = this.song.url;
+		this.audio.src = 'http://124.14.7.27/' + this.song.url;
 		// 播放/暂停
 		var that = this;
 		var playPause = document.getElementsByClassName('play')[0];
