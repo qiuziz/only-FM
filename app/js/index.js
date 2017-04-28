@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-28 21:55:24
+ * @Last Modified time: 2017-04-28 21:56:49
  */
 
 function OnlyFM() {
@@ -89,19 +89,16 @@ OnlyFM.prototype = {
 	},
 
 	_getSong: function(song) {
-			this.song = {
-				id: song.id,
-				url: song.mp3Url,
-				picUrl: song.album.picUrl,
-				title: song.name,
-				artist: song.artists[0].name
-			};
-			this._bind();
-			this._loadSong();
-			this._download();
-			}
-		})
-		
+		this.song = {
+			id: song.id,
+			url: song.mp3Url,
+			picUrl: song.album.picUrl,
+			title: song.name,
+			artist: song.artists[0].name
+		};
+		this._bind();
+		this._loadSong();
+		this._download();
 	},
 
 	_bind: function() {
