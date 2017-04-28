@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-28 21:49:50
+ * @Last Modified time: 2017-04-28 21:55:24
  */
 
 function OnlyFM() {
@@ -89,21 +89,16 @@ OnlyFM.prototype = {
 	},
 
 	_getSong: function(song) {
-		var that = this;
-			HttpRequest({
-			url: "/music/url?id=" + song.id,
-			method: "get",
-			success: function(res) {
-				that.song = {
-					id: song.id,
-					url: res.data[0].url,
-					picUrl: song.album.picUrl,
-					title: song.name,
-					artist: song.artists[0].name
-				};
-				that._bind();
-				that._loadSong();
-				that._download();
+			this.song = {
+				id: song.id,
+				url: song.mp3Url,
+				picUrl: song.album.picUrl,
+				title: song.name,
+				artist: song.artists[0].name
+			};
+			this._bind();
+			this._loadSong();
+			this._download();
 			}
 		})
 		
@@ -230,7 +225,7 @@ OnlyFM.prototype = {
 	},
 
 	_loadSong: function() {
-		this.audio.src = 'http://124.14.7.27/' + this.song.url;
+		this.audio.src = this.song.url;
 		// 播放/暂停
 		var that = this;
 		var playPause = document.getElementsByClassName('play')[0];
