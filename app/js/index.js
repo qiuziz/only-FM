@@ -2,12 +2,11 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-02 17:04:18
+ * @Last Modified time: 2017-05-02 17:26:39
  */
 
 function OnlyFM() {
 	this.audio = document.getElementsByTagName('audio')[0];
-	this.index = 0;
 	this._init();
 }
 
@@ -80,6 +79,7 @@ OnlyFM.prototype = {
 				} else if (res.recommend && res.recommend.length > 0){
 					that.songTotal = res.recommend.length || 0;
 					that.recommendSongs = res.recommend;
+					that.index = random(0, that.songTotal);
 					that._getSong(res.recommend[that.index]);
 				} else {
 					that._userPlaylist(localFetch('__music_uid'));
@@ -104,6 +104,7 @@ OnlyFM.prototype = {
 				that._bind();
 				that._loadSong();
 				that._download();
+				that.nextFlag = false;
 			}
 		})
 	},
@@ -152,9 +153,11 @@ OnlyFM.prototype = {
 		var next = document.getElementsByClassName('next')[0];
 		next.onclick = function() {
 			that.lrc = '';
-			that.recommendSongs
+			!that.nextFlag &&
+			(that.recommendSongs
 			? that._getSong(that.recommendSongs[random(0, that.songTotal)])
-			: that._songDetail();
+			: that._songDetail());
+			that.nextFlag = true;
 		}
 
 		var lrcShowHide = document.getElementsByClassName('lrc')[0];
@@ -429,10 +432,11 @@ function localRemove(key) {
 	window.localStorage.removeItem(key);
 }
 
-// 产生m 到 n 之间的随机数
-function random(m, n) {
-	var i = n - m + 1;
-	return Math.floor(Math.random() * i + m);
+// 产生m 到 n 之间的随机数 and 不与之前的相等
+function random(m, n, r) {
+	var i = n - m;
+	var f = Math.floor(Math.random() * i + m);
+	return r ? (r === f ? random(m, n, r) : f) : f;
 }
 
 new OnlyFM();
