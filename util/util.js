@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-26 14:58:01
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-02 16:19:28
+ * @Last Modified time: 2017-05-02 16:22:31
  */
 
 const encrypt = require('./crypto.js');
@@ -21,7 +21,6 @@ function createWebAPIRequest(path, method, data, cookie, success, error) {
 			'Connection': 'keep-alive',
 			'Content-Type': 'application/x-www-form-urlencoded',
 			'Referer': 'http://music.163.com',
-			'X-Forwarded-For': '211.161.244.70',
 			'X-Real-IP':'211.161.244.70',
 			'Host': 'music.163.com',
 			'Cookie': cookie,
