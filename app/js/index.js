@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-02 11:49:25
+ * @Last Modified time: 2017-05-02 17:04:18
  */
 
 function OnlyFM() {
@@ -77,7 +77,7 @@ OnlyFM.prototype = {
 			success: function(res) {
 				if (res.code !== 200) {
 					that._loginNetease();
-				} else if (res.recommend && res.recommend.length < 0){
+				} else if (res.recommend && res.recommend.length > 0){
 					that.songTotal = res.recommend.length || 0;
 					that.recommendSongs = res.recommend;
 					that._getSong(res.recommend[that.index]);
