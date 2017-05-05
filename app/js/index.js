@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-04 12:37:32
+ * @Last Modified time: 2017-05-05 18:23:10
  */
 
 function OnlyFM() {
@@ -239,7 +239,7 @@ OnlyFM.prototype = {
 		playPause.onclick = function() {
 			that._playPause();
 		}
-		that._playPause();
+		// that._playPause();
 		if(localFetch(this.song.title)){
 			var like = document.getElementsByClassName('like')[0];
 					like.className = 'like active';
