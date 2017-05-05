@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-25 11:42:50
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-04-28 21:27:05
+ * @Last Modified time: 2017-05-03 17:47:27
  */
 
 var http = require('http');
@@ -37,5 +37,6 @@ const port = process.env.PORT || 8888;
 
 
 app.use(express.static('app'));
+app.use('/music', express.static('music'));
 
 http.createServer(app).listen(port);

@@ -8,6 +8,7 @@
   "dependencies": {
     "big-integer": "^1.6.17",
     "express": "^4.15.2",
+    "mongodb": "^2.2.26",
     "qiniu": "^6.1.13",
     "request": "^2.81.0"
   },

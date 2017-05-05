@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-02 17:26:39
+ * @Last Modified time: 2017-05-04 12:37:32
  */
 
 function OnlyFM() {
@@ -76,7 +76,7 @@ OnlyFM.prototype = {
 			success: function(res) {
 				if (res.code !== 200) {
 					that._loginNetease();
-				} else if (res.recommend && res.recommend.length > 0){
+				} else if (res.recommend && res.recommend.length < 0){
 					that.songTotal = res.recommend.length || 0;
 					that.recommendSongs = res.recommend;
 					that.index = random(0, that.songTotal);
@@ -248,10 +248,8 @@ OnlyFM.prototype = {
 
 	_endedOrError: function() {
 		if (this.recommendSongs) {
-			console.log('111')
 			this._getSong(this.recommendSongs[random(0, this.songTotal)]);
 		} else {
-			console.log('2222')
 			this._songDetail()
 		}
 	},
@@ -287,7 +285,6 @@ OnlyFM.prototype = {
 			seconds = time && (time[0][1] * 600 + time[0][2] * 60 + time[0][4] * 10 + time[0][5] * 1);  //将时间换算为秒
 			lrcRender.push([seconds, lyric[1]]);      //将整个歌词保存至二维数组中，形式为[时间，歌词]；
 		});
-		console.log(lrcRender);
 		return lrcRender;
 		
 	},
@@ -410,7 +407,7 @@ function HttpRequest(options) {
 
 function timeFormat(time) {
 	if (isNaN(Number(time))) {
-		console.log('参数只能为number');
+		// console.log('参数只能为number');
 		return '00:00';
 	};
 	var m = parseInt(time / 60) < 10 ? `0` + parseInt(time / 60) : parseInt(time / 60),
