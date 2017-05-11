@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-05 18:23:10
+ * @Last Modified time: 2017-05-10 10:38:37
  */
 
 function OnlyFM() {
@@ -58,7 +58,7 @@ OnlyFM.prototype = {
 	_songDetail: function(ids) {
 		var that = this;
 		this.ids = ids || this.ids;
-		this.index = random(0, this.songTotal);
+		this.index = random(0, this.songTotal, this.index);
 		HttpRequest({
 			url: "/music/songDetail?ids=" + this.ids[this.index],
 			method: "get",
@@ -79,7 +79,7 @@ OnlyFM.prototype = {
 				} else if (res.recommend && res.recommend.length < 0){
 					that.songTotal = res.recommend.length || 0;
 					that.recommendSongs = res.recommend;
-					that.index = random(0, that.songTotal);
+					that.index = random(0, that.songTotal, that.index);
 					that._getSong(res.recommend[that.index]);
 				} else {
 					that._userPlaylist(localFetch('__music_uid'));
@@ -155,7 +155,7 @@ OnlyFM.prototype = {
 			that.lrc = '';
 			!that.nextFlag &&
 			(that.recommendSongs
-			? that._getSong(that.recommendSongs[random(0, that.songTotal)])
+			? that._getSong(that.recommendSongs[random(0, that.songTotal, that.index)])
 			: that._songDetail());
 			that.nextFlag = true;
 		}
@@ -222,7 +222,6 @@ OnlyFM.prototype = {
 						lrcUl.style.marginTop = top + 'px';
 						liList[i].className = 'now-lrc';
 						liList[i - 1].className = '';
-					} else {
 					}
 				}
 			}
@@ -239,7 +238,7 @@ OnlyFM.prototype = {
 		playPause.onclick = function() {
 			that._playPause();
 		}
-		// that._playPause();
+		that._playPause();
 		if(localFetch(this.song.title)){
 			var like = document.getElementsByClassName('like')[0];
 					like.className = 'like active';
@@ -248,7 +247,7 @@ OnlyFM.prototype = {
 
 	_endedOrError: function() {
 		if (this.recommendSongs) {
-			this._getSong(this.recommendSongs[random(0, this.songTotal)]);
+			this._getSong(this.recommendSongs[random(0, this.songTotal, this.index)]);
 		} else {
 			this._songDetail()
 		}

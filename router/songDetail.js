@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-28 11:15:37
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-04 11:45:38
+ * @Last Modified time: 2017-05-11 11:02:46
  */
 
 const express = require("express")
@@ -44,6 +44,7 @@ router.get("/", (req, res) => {
 		collection.findOne({_id: ids}, function(err,doc){
 			if (err) {
 				console.log(err);
+				db.close();
         res.status(502).send('fetch error')
 				return;
 			}

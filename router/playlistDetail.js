@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-28 10:38:22
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-04 11:43:48
+ * @Last Modified time: 2017-05-10 11:05:14
  */
 
 const http = require('http')
@@ -89,6 +89,7 @@ router.get("/", (req, res) => {
 		collection.findOne({}, {_id: 0}, function(err,doc){
 			if (err) {
 				console.log(err);
+			  db.close();
         res.status(502).send('fetch error')
 				return;
 			}
