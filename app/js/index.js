@@ -2,7 +2,7 @@
  * @Author: qiuziz
  * @Date: 2017-04-07 16:00:13
  * @Last Modified by: qiuziz
- * @Last Modified time: 2017-05-10 10:38:37
+ * @Last Modified time: 2017-05-22 16:20:09
  */
 
 function OnlyFM() {
@@ -30,7 +30,7 @@ OnlyFM.prototype = {
 	_userPlaylist: function(uid) {
 		var that = this;
 		HttpRequest({
-			url: "/user/playlist?uid=" + uid,
+			url: "/user/playlist?uid=" + uid || '5554901',
 			method: "get",
 			success: function(res) {
 				that.myLikePlaylistId = res.playlist[0].id;
